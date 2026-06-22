@@ -1,0 +1,140 @@
+{
+  "info": {
+    "_postman_id": "d34677e9-9fc7-4c36-82d7-e55974c43d5d",
+    "name": "UPPCL Consolidated Bill Reporting API",
+    "description": "Run requests in order. Postman keeps the authentication cookie and the test scripts capture created IDs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "adminEmail", "value": "" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "uploaderEmail", "value": "postman.uploader@uppcl.test" },
+    { "key": "uploaderPassword", "value": "Postman@123" },
+    { "key": "division", "value": "Lucknow" },
+    { "key": "reportDate", "value": "2026-06-18" },
+    { "key": "userId", "value": "" },
+    { "key": "submissionId", "value": "" },
+    { "key": "auditId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 200', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "02 Admin Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}" },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Admin login succeeds', () => pm.response.to.have.status(200));", "pm.test('Admin role returned', () => pm.expect(pm.response.json().user.role).to.eql('admin'));"] } }]
+    },
+    {
+      "name": "03 Current Admin",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/auth/me" },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Authenticated', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "04 Create Uploader",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Uploader\",\n  \"email\": \"{{uploaderEmail}}\",\n  \"password\": \"{{uploaderPassword}}\",\n  \"role\": \"uploader\",\n  \"division\": \"{{division}}\"\n}" },
+        "url": "{{baseUrl}}/api/v1/users"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Uploader created', () => pm.expect(pm.response.code).to.be.oneOf([201, 409]));", "if (pm.response.code === 201) pm.collectionVariables.set('userId', pm.response.json().user.id);"] } }]
+    },
+    {
+      "name": "05 List Users",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/users?role=uploader&status=active" }
+    },
+    {
+      "name": "06 Admin Logout",
+      "request": { "method": "POST", "url": "{{baseUrl}}/api/v1/auth/logout" }
+    },
+    {
+      "name": "07 Uploader Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{uploaderEmail}}\",\n  \"password\": \"{{uploaderPassword}}\"\n}" },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Uploader login succeeds', () => pm.response.to.have.status(200));"] } }]
+    },
+    {
+      "name": "08 Create Submission",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"date\": \"{{reportDate}}\",\n  \"bankAmount\": 125000.50,\n  \"gatewayAmount\": 75000,\n  \"billingAmount\": 50000.25\n}" },
+        "url": "{{baseUrl}}/api/v1/uploads"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Submission created', () => pm.response.to.have.status(201));", "if (pm.response.code === 201) pm.collectionVariables.set('submissionId', pm.response.json().submission.id);"] } }]
+    },
+    {
+      "name": "09 List My Submissions",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/uploads?status=pending&from={{reportDate}}&to={{reportDate}}" }
+    },
+    {
+      "name": "10 Get Submission",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/uploads/{{submissionId}}" }
+    },
+    {
+      "name": "11 Uploader Logout",
+      "request": { "method": "POST", "url": "{{baseUrl}}/api/v1/auth/logout" }
+    },
+    {
+      "name": "12 Admin Login Again",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}" },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      }
+    },
+    {
+      "name": "13 List Pending",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/admin/pending" }
+    },
+    {
+      "name": "14 Approve Submission",
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"comment\": \"Verified through Postman\"\n}" },
+        "url": "{{baseUrl}}/api/v1/admin/uploads/{{submissionId}}/approve"
+      },
+      "event": [{ "listen": "test", "script": { "exec": ["pm.test('Submission approved', () => pm.response.to.have.status(200));", "pm.test('Report generated', () => pm.expect(pm.response.json()).to.have.property('report'));"] } }]
+    },
+    {
+      "name": "15 List Reports",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/reports?from={{reportDate}}&to={{reportDate}}" }
+    },
+    {
+      "name": "16 Report By Date",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/reports/{{reportDate}}" }
+    },
+    {
+      "name": "17 Export PDF",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/reports/{{reportDate}}/export/pdf" }
+    },
+    {
+      "name": "18 Export Excel",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/reports/{{reportDate}}/export/excel" }
+    },
+    {
+      "name": "19 List Audit Logs",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/audit?page=1&limit=20" },
+      "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 200 && pm.response.json().logs.length) pm.collectionVariables.set('auditId', pm.response.json().logs[0].id);"] } }]
+    },
+    {
+      "name": "20 Get Audit Log",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/audit/{{auditId}}" }
+    }
+  ]
+}

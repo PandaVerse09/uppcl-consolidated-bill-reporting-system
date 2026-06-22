@@ -1,0 +1,30 @@
+Consolidated Billing System requirements
+
+System prerequisites:
+- Node.js 18 or newer
+- npm 9 or newer
+- MongoDB 6 or newer
+
+Install dependencies:
+1. cd BACKEND
+2. npm install
+3. cd ../FRONTEND
+4. npm install
+
+Environment files:
+1. Copy BACKEND/.env.example to BACKEND/.env
+2. Copy FRONTEND/.env.example to FRONTEND/.env
+3. Update MongoDB, JWT, admin, and frontend URL values as needed
+
+Run locally:
+1. Start MongoDB
+2. cd BACKEND
+3. npm run seed:admin
+4. npm run dev
+5. Open a second terminal
+6. cd FRONTEND
+7. npm run dev
+
+Note:
+npm installs dependencies from package.json and package-lock.json, not from requirements.txt.
+This file is a setup checklist for another system.
