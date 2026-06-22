@@ -133,3 +133,22 @@ npm run preview
 - Ensure MongoDB is running before starting the backend.
 - Set `FRONTEND_URL` to the deployed frontend origin so cookie-based auth works with CORS.
 - Run `npm run build` in `FRONTEND` before deployment.
+
+## Contributors
+
+**Utkarsh Aryan Mishra**
+
+- Backend development
+- Database design
+- API development
+- Business logic
+
+**Ajruddin Ali**
+
+- Frontend development
+- User interface implementation
+- Client-side features
+
+## Repository Release Note
+
+Before making this repository public, confirm that the project has been cleared for public release by the appropriate owner, mentor, or organization. If any code, documentation, data, or business logic belongs to UPPCL or was created under internship/company ownership, keep the repository private until explicit approval is received.
