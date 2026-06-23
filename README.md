@@ -148,7 +148,3 @@ npm run preview
 - Frontend development
 - User interface implementation
 - Client-side features
-
-## Repository Release Note
-
-Before making this repository public, confirm that the project has been cleared for public release by the appropriate owner, mentor, or organization. If any code, documentation, data, or business logic belongs to UPPCL or was created under internship/company ownership, keep the repository private until explicit approval is received.
