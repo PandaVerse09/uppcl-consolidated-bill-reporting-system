@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const uploadRoutes = require("./routes/upload.routes");
@@ -23,6 +24,33 @@ app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Consolidated Bill Reporting API Running");
+});
+
+// Liveness Probe: Checks if the application server is up and running.
+app.get("/healthz", (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// Readiness Probe: Checks if the app is ready to receive traffic (DB connection active).
+app.get("/readyz", (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  if (dbState === 1) {
+    res.status(200).json({
+      status: "READY",
+      database: "CONNECTED",
+    });
+  } else {
+    res.status(503).json({
+      status: "NOT_READY",
+      database: dbState === 2 ? "CONNECTING" : "DISCONNECTED",
+      readyState: dbState,
+    });
+  }
 });
 
 app.use("/api/v1/auth", authRoutes);
