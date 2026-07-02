@@ -64,11 +64,11 @@ The system is deployed as a single-container service (monolith layout) hosting b
 
 ```mermaid
 flowchart TB
-  subgraph User Browser
+  subgraph "User Browser"
     SPA["React SPA (Vite / Tailwind CSS)"]
   end
 
-  subgraph Cloud Container (Pod)
+  subgraph "Cloud Container (Pod)"
     direction TB
     API["Express API Server (/api/v1)"]
     MW["Auth Middleware (HTTP-only Cookie / Bearer)"]
@@ -79,7 +79,7 @@ flowchart TB
     Static["Static Asset Server (BACKEND/dist)"]
   end
 
-  subgraph Database
+  subgraph "Database"
     DB[("MongoDB Cluster")]
   end
 
@@ -102,7 +102,7 @@ The codebase utilizes standard page components coupled with a central API client
 
 ```mermaid
 flowchart LR
-  subgraph FRONTEND
+  subgraph "FRONTEND"
     App["App.jsx (Routing)"]
     Guard["RequireRole (Route Guards)"]
     AuthCtx["AuthContext.jsx"]
@@ -110,7 +110,7 @@ flowchart LR
     Client["api.js (Client API Wrapper)"]
   end
 
-  subgraph BACKEND
+  subgraph "BACKEND"
     Routes["Express Routes"]
     AuthMW["protect / restrictTo Middleware"]
     AuthC["Auth Controller"]
