@@ -21,10 +21,11 @@ function sanitizeUser(user) {
 
 const listUsers = catchAsync(async (req, res) => {
   const filter = {};
+  const query = { ...req.query, ...req.body };
 
-  if (req.query.role) filter.role = req.query.role;
-  if (req.query.status === "active") filter.isActive = true;
-  if (req.query.status === "inactive") filter.isActive = false;
+  if (query.role) filter.role = query.role;
+  if (query.status === "active") filter.isActive = true;
+  if (query.status === "inactive") filter.isActive = false;
 
   const users = await User.find(filter).sort({ createdAt: -1 });
 

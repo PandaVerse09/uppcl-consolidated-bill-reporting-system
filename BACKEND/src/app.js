@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
+const path = require("path");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const uploadRoutes = require("./routes/upload.routes");
@@ -22,9 +23,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.send("Consolidated Bill Reporting API Running");
-});
+// Serve built frontend static assets from backend dist folder
+app.use(express.static(path.join(__dirname, "../dist")));
 
 // Liveness Probe: Checks if the application server is up and running.
 app.get("/healthz", (req, res) => {
@@ -59,6 +59,17 @@ app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/audit", auditRoutes);
+
+// Fallback routing: Send index.html for non-API GET requests to support React Router client-side routing
+app.use((req, res, next) => {
+  if (req.method !== "GET") {
+    return next();
+  }
+  if (req.originalUrl.startsWith("/api") || req.originalUrl === "/healthz" || req.originalUrl === "/readyz") {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
+});
 
 app.use((req, res, next) => {
   next(new ApiError(404, `Route not found: ${req.originalUrl}`));

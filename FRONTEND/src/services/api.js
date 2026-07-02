@@ -16,19 +16,47 @@ async function request(path, options = {}) {
   return data
 }
 
-function query(params = {}) {
-  const values = Object.entries(params).filter(([, value]) => value !== '' && value != null)
-  return values.length ? `?${new URLSearchParams(values)}` : ''
+const getRewrites = {
+  '/uploads': '/uploads/list',
+  '/users': '/users/list',
+  '/reports': '/reports/list',
+  '/audit': '/audit/list',
 }
 
 export const api = {
-  get: (path, params) => request(`${path}${query(params)}`),
+  get: (path, params) => {
+    const targetPath = getRewrites[path] || path
+    return request(targetPath, {
+      method: 'POST',
+      body: JSON.stringify(params || {}),
+    })
+  },
   post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
-  put: (path, body) => request(path, { method: 'PUT', body: JSON.stringify(body) }),
-  patch: (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body) }),
-  delete: (path) => request(path, { method: 'DELETE' }),
+  put: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
+  patch: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
+  delete: (path) => request(`${path}/delete`, { method: 'POST' }),
   download: async (path, filename) => {
-    const response = await fetch(`${API_URL}${path}`, { credentials: 'include' })
+    // Parse potential query params from path and move them to POST body
+    let cleanPath = path
+    let body = {}
+    const qIndex = path.indexOf('?')
+    if (qIndex !== -1) {
+      cleanPath = path.substring(0, qIndex)
+      const queryString = path.substring(qIndex + 1)
+      const searchParams = new URLSearchParams(queryString)
+      for (const [key, value] of searchParams.entries()) {
+        body[key] = value
+      }
+    }
+
+    const response = await fetch(`${API_URL}${cleanPath}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
     if (!response.ok) throw new Error((await response.json().catch(() => null))?.message || 'Download failed')
     const url = URL.createObjectURL(await response.blob())
     const link = document.createElement('a')

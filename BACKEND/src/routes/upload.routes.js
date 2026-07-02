@@ -6,11 +6,8 @@ const router = express.Router();
 
 router.use(protect);
 
-router
-  .route("/")
-  .post(restrictTo("uploader"), uploadController.createSubmission)
-  .get(restrictTo("uploader", "admin"), uploadController.listSubmissions);
-
-router.put("/:id", restrictTo("uploader"), uploadController.updateSubmission);
+router.post("/list", restrictTo("uploader", "admin"), uploadController.listSubmissions);
+router.post("/", restrictTo("uploader"), uploadController.createSubmission);
+router.post("/:id", restrictTo("uploader"), uploadController.updateSubmission);
 
 module.exports = router;

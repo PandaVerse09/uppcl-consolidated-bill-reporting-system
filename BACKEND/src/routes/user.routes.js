@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(protect, restrictTo("admin"));
 
-router.get("/", userController.listUsers);
+router.post("/list", userController.listUsers);
 router.post("/", userController.createUser);
-router.patch("/:id/status", userController.updateUserStatus);
-router.delete("/:id", userController.deleteUser);
+router.post("/:id/status", userController.updateUserStatus);
+router.post("/:id/delete", userController.deleteUser);
 
 module.exports = router;

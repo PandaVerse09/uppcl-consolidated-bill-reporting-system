@@ -6,5 +6,5 @@ const router = express.Router();
 
 router.use(protect, restrictTo("admin"));
 
-router.get("/", auditController.listAuditLogs);
+router.post("/list", auditController.listAuditLogs);
 module.exports = router;

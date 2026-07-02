@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(protect, restrictTo("admin", "report_user"));
 
-router.get("/", reportController.listReports);
-router.get("/:date", reportController.getReportByDate);
-router.get("/:date/export/pdf", reportController.exportReportPdf);
-router.get("/:date/export/excel", reportController.exportReportExcel);
+router.post("/list", reportController.listReports);
+router.post("/:date", reportController.getReportByDate);
+router.post("/:date/export/pdf", reportController.exportReportPdf);
+router.post("/:date/export/excel", reportController.exportReportExcel);
 
 module.exports = router;

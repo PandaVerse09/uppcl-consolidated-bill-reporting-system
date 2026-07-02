@@ -122,28 +122,29 @@ async function findExistingEditableSubmission(division, date) {
 
 function buildListFilter(req) {
   const filter = {};
+  const query = { ...req.query, ...req.body };
 
   if (req.user.role === "uploader") {
     filter.division = req.user.division;
-  } else if (req.query.division) {
-    filter.division = req.query.division;
+  } else if (query.division) {
+    filter.division = query.division;
   }
 
-  if (req.query.status) {
-    filter.status = req.query.status;
+  if (query.status) {
+    filter.status = query.status;
   }
 
-  if (req.query.from || req.query.to) {
+  if (query.from || query.to) {
     filter.date = {};
 
-    const from = normalizeDate(req.query.from);
-    const to = normalizeDate(req.query.to);
+    const from = normalizeDate(query.from);
+    const to = normalizeDate(query.to);
 
-    if (req.query.from && !from) {
+    if (query.from && !from) {
       throw new ApiError(400, "Invalid from date");
     }
 
-    if (req.query.to && !to) {
+    if (query.to && !to) {
       throw new ApiError(400, "Invalid to date");
     }
 

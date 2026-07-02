@@ -50,21 +50,22 @@ function sanitizeReport(report, divisionFilter = null) {
 
 function buildReportFilter(req) {
   const filter = {};
+  const query = { ...req.query, ...req.body };
 
-  if (req.query.from || req.query.to) {
+  if (query.from || query.to) {
     filter.date = {};
 
-    if (req.query.from) {
-      filter.date.$gte = normalizeDate(req.query.from);
+    if (query.from) {
+      filter.date.$gte = normalizeDate(query.from);
     }
 
-    if (req.query.to) {
-      filter.date.$lte = endOfDay(req.query.to);
+    if (query.to) {
+      filter.date.$lte = endOfDay(query.to);
     }
   }
 
-  if (req.query.division) {
-    filter["divisions.division"] = req.query.division;
+  if (query.division) {
+    filter["divisions.division"] = query.division;
   }
 
   return filter;
@@ -89,6 +90,7 @@ async function findReportByDate(req) {
 
 const listReports = catchAsync(async (req, res) => {
   const filter = buildReportFilter(req);
+  const division = req.body.division || req.query.division;
   const reports = await ConsolidatedReport.find(filter)
     .populate("generatedBy", "name email role")
     .sort({ date: 1 });
@@ -96,21 +98,23 @@ const listReports = catchAsync(async (req, res) => {
   res.status(200).json({
     success: true,
     count: reports.length,
-    reports: reports.map((report) => sanitizeReport(report, req.query.division)),
+    reports: reports.map((report) => sanitizeReport(report, division)),
   });
 });
 
 const getReportByDate = catchAsync(async (req, res) => {
   const report = await findReportByDate(req);
+  const division = req.body.division || req.query.division;
 
   res.status(200).json({
     success: true,
-    report: sanitizeReport(report, req.query.division),
+    report: sanitizeReport(report, division),
   });
 });
 
 const exportReportPdf = catchAsync(async (req, res) => {
-  const report = sanitizeReport(await findReportByDate(req), req.query.division);
+  const division = req.body.division || req.query.division;
+  const report = sanitizeReport(await findReportByDate(req), division);
   const fileDate = formatDate(report.date);
   await logAudit({
     action: "EXPORT_PDF",
@@ -118,7 +122,7 @@ const exportReportPdf = catchAsync(async (req, res) => {
     targetId: report.id,
     targetCollection: "consolidatedReports",
     date: report.date,
-    note: req.query.division ? `Division filter: ${req.query.division}` : undefined,
+    note: division ? `Division filter: ${division}` : undefined,
   });
 
   res.setHeader("Content-Type", "application/pdf");
@@ -185,7 +189,8 @@ const exportReportPdf = catchAsync(async (req, res) => {
 });
 
 const exportReportExcel = catchAsync(async (req, res) => {
-  const report = sanitizeReport(await findReportByDate(req), req.query.division);
+  const division = req.body.division || req.query.division;
+  const report = sanitizeReport(await findReportByDate(req), division);
   const fileDate = formatDate(report.date);
   await logAudit({
     action: "EXPORT_EXCEL",
@@ -193,7 +198,7 @@ const exportReportExcel = catchAsync(async (req, res) => {
     targetId: report.id,
     targetCollection: "consolidatedReports",
     date: report.date,
-    note: req.query.division ? `Division filter: ${req.query.division}` : undefined,
+    note: division ? `Division filter: ${division}` : undefined,
   });
 
   const workbook = new ExcelJS.Workbook();

@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.use(protect, restrictTo("admin"));
 
-router.get("/pending", adminController.listPendingSubmissions);
+router.post("/pending", adminController.listPendingSubmissions);
 router.post("/reports/:date/publish", adminController.publishReport);
-router.patch("/uploads/:id/approve", adminController.approveSubmission);
-router.patch("/uploads/:id/reject", adminController.rejectSubmission);
+router.post("/uploads/:id/approve", adminController.approveSubmission);
+router.post("/uploads/:id/reject", adminController.rejectSubmission);
 module.exports = router;

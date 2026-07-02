@@ -23,26 +23,28 @@ function sanitizeAuditLog(log) {
 
 function buildAuditFilter(req) {
   const filter = {};
+  const query = { ...req.query, ...req.body };
 
-  if (req.query.action) filter.action = req.query.action.toUpperCase();
-  if (req.query.user) filter.performedBy = req.query.user;
-  if (req.query.role) filter.performerRole = req.query.role;
-  if (req.query.division) filter.division = req.query.division;
-  if (req.query.targetCollection) filter.targetCollection = req.query.targetCollection;
+  if (query.action) filter.action = query.action.toUpperCase();
+  if (query.user) filter.performedBy = query.user;
+  if (query.role) filter.performerRole = query.role;
+  if (query.division) filter.division = query.division;
+  if (query.targetCollection) filter.targetCollection = query.targetCollection;
 
-  if (req.query.from || req.query.to) {
+  if (query.from || query.to) {
     filter.timestamp = {};
 
-    if (req.query.from) filter.timestamp.$gte = normalizeDate(req.query.from);
-    if (req.query.to) filter.timestamp.$lte = endOfDay(req.query.to);
+    if (query.from) filter.timestamp.$gte = normalizeDate(query.from);
+    if (query.to) filter.timestamp.$lte = endOfDay(query.to);
   }
 
   return filter;
 }
 
 const listAuditLogs = catchAsync(async (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 100, 500);
-  const page = Math.max(Number(req.query.page) || 1, 1);
+  const query = { ...req.query, ...req.body };
+  const limit = Math.min(Number(query.limit) || 100, 500);
+  const page = Math.max(Number(query.page) || 1, 1);
   const skip = (page - 1) * limit;
   const filter = buildAuditFilter(req);
 
