@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, LogOut, User as UserIcon } from 'lucide-react'
+import { ChevronDown, LogOut, User as UserIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -33,11 +33,6 @@ export function Navbar() {
         <span className="hidden sm:inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700">
           {user?.roleLabel}
         </span>
-
-        <button className="relative text-gray-500 hover:text-gray-700">
-          <Bell size={20} />
-          <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-danger-500" />
-        </button>
 
         <div className="relative">
           <button
