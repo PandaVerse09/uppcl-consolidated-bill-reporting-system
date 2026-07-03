@@ -67,7 +67,7 @@ export default function UploadForm() {
     {
       key: 'actions',
       header: 'Actions',
-      render: (r) => r.status !== 'rejected' && r.status !== 'superseded'
+      render: (r) => r.status !== 'superseded'
         ? <Button size="sm" variant="secondary" onClick={() => edit(r)}><Pencil size={13} /> Edit</Button>
         : '-',
     },

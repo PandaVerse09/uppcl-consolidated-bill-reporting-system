@@ -116,7 +116,7 @@ async function findExistingEditableSubmission(division, date) {
       $gte: date,
       $lte: endOfDay(date),
     },
-    status: { $in: ["approved", "pending"] },
+    status: { $in: ["approved", "pending", "rejected"] },
   }).sort({ requiresApproval: -1, updatedAt: -1 });
 }
 
@@ -170,68 +170,19 @@ const createSubmission = catchAsync(async (req, res) => {
   await ensurePreviousDateExists(req.user.division, date);
 
   const isPublishedDate = Boolean(await reportExistsForDate(date));
-  const existingSubmission = await findExistingEditableSubmission(req.user.division, date);
+  
+  // Block if a submission already exists for this date and division
+  const existingSubmission = await PaymentSubmission.findOne({
+    division: req.user.division,
+    date: {
+      $gte: date,
+      $lte: endOfDay(date),
+    },
+    status: { $ne: "superseded" },
+  });
 
-  if (!isPublishedDate && existingSubmission) {
-    const oldValue = sanitizeSubmission(existingSubmission);
-
-    existingSubmission.set({
-      ...amounts,
-      status: "approved",
-      reviewedBy: null,
-      reviewComment: undefined,
-      changeReason: "pre_publish_edit",
-      requiresApproval: false,
-    });
-    await existingSubmission.save();
-
-    await logAudit({
-      action: "UPDATE",
-      req,
-      targetId: existingSubmission._id,
-      targetCollection: "paymentSubmissions",
-      division: existingSubmission.division,
-      date: existingSubmission.date,
-      oldValue,
-      newValue: sanitizeSubmission(existingSubmission),
-      note: "Pre-publication uploader edit",
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Submission updated before report publication.",
-      submission: sanitizeSubmission(existingSubmission),
-    });
-  }
-
-  if (isPublishedDate && existingSubmission?.status === "pending") {
-    const oldValue = sanitizeSubmission(existingSubmission);
-
-    existingSubmission.set({
-      ...amounts,
-      changeReason: "post_publish_change",
-      requiresApproval: true,
-      reviewComment: req.body.comment,
-    });
-    await existingSubmission.save();
-
-    await logAudit({
-      action: "UPDATE",
-      req,
-      targetId: existingSubmission._id,
-      targetCollection: "paymentSubmissions",
-      division: existingSubmission.division,
-      date: existingSubmission.date,
-      oldValue,
-      newValue: sanitizeSubmission(existingSubmission),
-      note: "Post-publication change request updated",
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Change request updated and awaiting admin approval.",
-      submission: sanitizeSubmission(existingSubmission),
-    });
+  if (existingSubmission) {
+    throw new ApiError(400, "A submission already exists for this date. Please edit the existing submission instead.");
   }
 
   const submission = await PaymentSubmission.create({
@@ -241,7 +192,7 @@ const createSubmission = catchAsync(async (req, res) => {
     status: isPublishedDate ? "pending" : "approved",
     changeReason: isPublishedDate ? "post_publish_change" : "initial_upload",
     requiresApproval: isPublishedDate,
-    replacesSubmission: isPublishedDate ? existingSubmission?._id || null : null,
+    replacesSubmission: null,
     uploadedBy: req.user._id,
     isBackdate: date < normalizeDate(new Date()),
     backdateJustification: req.body.backdateJustification,
@@ -277,8 +228,8 @@ const updateSubmission = catchAsync(async (req, res) => {
     throw new ApiError(404, "Submission not found");
   }
 
-  if (submission.status === "rejected" || submission.status === "superseded") {
-    throw new ApiError(400, "Rejected or superseded submissions cannot be edited");
+  if (submission.status === "superseded") {
+    throw new ApiError(400, "Superseded submissions cannot be edited");
   }
 
   const date = normalizeDate(req.body.date || submission.date);
@@ -323,10 +274,11 @@ const updateSubmission = catchAsync(async (req, res) => {
     });
   }
 
-  if (submission.status === "pending") {
+  if (submission.status === "pending" || submission.status === "rejected") {
     submission.set({
       date,
       ...amounts,
+      status: "pending",
       changeReason: "post_publish_change",
       requiresApproval: true,
       reviewComment: req.body.comment,
@@ -349,6 +301,44 @@ const updateSubmission = catchAsync(async (req, res) => {
       success: true,
       message: "Change request updated and awaiting admin approval.",
       submission: sanitizeSubmission(submission),
+    });
+  }  // Check if a pending or rejected change request already exists for this date
+  const existingChangeRequest = await PaymentSubmission.findOne({
+    division: submission.division,
+    date: {
+      $gte: date,
+      $lte: endOfDay(date),
+    },
+    status: { $in: ["pending", "rejected"] },
+  });
+
+  if (existingChangeRequest) {
+    const changeOldValue = sanitizeSubmission(existingChangeRequest);
+    existingChangeRequest.set({
+      ...amounts,
+      status: "pending",
+      changeReason: "post_publish_change",
+      requiresApproval: true,
+      reviewComment: req.body.comment,
+    });
+    await existingChangeRequest.save();
+
+    await logAudit({
+      action: "UPDATE",
+      req,
+      targetId: existingChangeRequest._id,
+      targetCollection: "paymentSubmissions",
+      division: existingChangeRequest.division,
+      date: existingChangeRequest.date,
+      oldValue: changeOldValue,
+      newValue: sanitizeSubmission(existingChangeRequest),
+      note: "Post-publication change request updated",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Change request updated and awaiting admin approval.",
+      submission: sanitizeSubmission(existingChangeRequest),
     });
   }
 
