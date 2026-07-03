@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon server.js",
+    "dev": "cross-env RUN_ENV=local nodemon server.js",
     "start": "node server.js",
     "seed:admin": "node scripts/seedAdmin.js"
   },
@@ -20,10 +20,14 @@
     "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.0",
     "multer": "^2.2.0",
     "nodemon": "^3.1.14",
     "pdfkit": "^0.19.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

@@ -2,7 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const app = require("./src/app");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 80;
 const MONGO_URI = process.env.MONGO_URI;
 
 // --- MongoDB Connection Retry Logic ---
@@ -48,12 +48,38 @@ mongoose.connection.on("disconnected", () => {
 // --- Server Lifecycle & Graceful Shutdown ---
 
 let server;
+let healthServer;
+
+function startHealthServer() {
+  const express = require("express");
+  const healthApp = express();
+  const healthPort = process.env.HEALTH_PORT || (process.env.RUN_ENV === "local" ? 5001 : 801);
+
+  healthApp.get("/health", (req, res) => {
+    const dbState = mongoose.connection.readyState;
+    if (dbState === 1) {
+      return res.status(200).json({ status: "OK", database: "CONNECTED" });
+    }
+    return res.status(503).json({
+      status: "Service Unavailable",
+      database: dbState === 2 ? "CONNECTING" : "DISCONNECTED",
+      readyState: dbState,
+    });
+  });
+
+  healthServer = healthApp.listen(healthPort, "0.0.0.0", () => {
+    console.log(`Health check server running on port ${healthPort}`);
+  });
+}
 
 async function startServer() {
   // Start listening first so that Kubernetes liveness check passes even if DB is still connecting
   server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+
+  // Start the dedicated health server
+  startHealthServer();
 
   // Connect to DB asynchronously with retry logic
   connectDBWithRetry().catch((err) => {
@@ -63,6 +89,16 @@ async function startServer() {
 
 function gracefulShutdown(signal) {
   console.log(`Received ${signal}. Starting graceful shutdown...`);
+
+  if (healthServer) {
+    try {
+      healthServer.close(() => {
+        console.log("Health check server closed.");
+      });
+    } catch (err) {
+      console.error("Error closing health check server:", err.message);
+    }
+  }
 
   if (server) {
     // 1. Stop receiving new requests

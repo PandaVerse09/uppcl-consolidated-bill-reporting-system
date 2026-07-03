@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'
+const isLocal = import.meta.env.VITE_RUN_ENV === 'local';
+const API_URL = isLocal 
+  ? (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1')
+  : '/revenue/api/v1';
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
