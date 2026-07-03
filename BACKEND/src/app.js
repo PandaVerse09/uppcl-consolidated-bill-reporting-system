@@ -36,33 +36,38 @@ const isLocal = process.env.RUN_ENV === "local";
 app.use(
   helmet({
     frameguard: { action: "deny" },
-    crossOriginOpenerPolicy: isLocal ? { policy: "unsafe-none" } : { policy: "same-origin-allow-popups" },
+    crossOriginOpenerPolicy: isLocal
+      ? { policy: "unsafe-none" }
+      : { policy: "same-origin-allow-popups" },
     crossOriginEmbedderPolicy: false,
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     dnsPrefetchControl: { allow: false },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-        ],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "blob:"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         connectSrc: [
           "'self'",
           "https://devops1.uppcl.org",
-          ...(isLocal ? ["http://localhost:5173", "http://localhost:5000", "ws://localhost:5173"] : [])
+          ...(isLocal
+            ? [
+                "http://localhost:5173",
+                "http://localhost:5000",
+                "ws://localhost:5173",
+              ]
+            : []),
         ],
         frameAncestors: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
         upgradeInsecureRequests: isLocal ? null : [],
-      }
-    }
-  })
+      },
+    },
+  }),
 );
 
 // Serve built frontend static assets from backend dist folder
@@ -74,8 +79,8 @@ app.use(
       res.setHeader("X-Frame-Options", "DENY");
       res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
       res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-    }
-  })
+    },
+  }),
 );
 
 // Liveness Probe: Checks if the application server is up and running.
@@ -85,24 +90,6 @@ app.get("/healthz", (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
-});
-
-// Readiness Probe: Checks if the app is ready to receive traffic (DB connection active).
-app.get("/readyz", (req, res) => {
-  const dbState = mongoose.connection.readyState;
-  // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-  if (dbState === 1) {
-    res.status(200).json({
-      status: "READY",
-      database: "CONNECTED",
-    });
-  } else {
-    res.status(503).json({
-      status: "NOT_READY",
-      database: dbState === 2 ? "CONNECTING" : "DISCONNECTED",
-      readyState: dbState,
-    });
-  }
 });
 
 app.use("/api/v1/auth", authRoutes);
@@ -118,8 +105,8 @@ app.use((req, res, next) => {
     return next();
   }
   if (
-    req.originalUrl.startsWith("/api") || 
-    req.originalUrl === "/healthz" || 
+    req.originalUrl.startsWith("/api") ||
+    req.originalUrl === "/healthz" ||
     req.originalUrl === "/readyz" ||
     req.originalUrl === "/health"
   ) {
@@ -129,11 +116,16 @@ app.use((req, res, next) => {
   const indexPath = path.join(__dirname, "../dist/index.html");
   fs.readFile(indexPath, "utf8", (err, html) => {
     if (err) {
-      return res.status(503).send("Application not yet built. Please run the build script.");
+      return res
+        .status(503)
+        .send("Application not yet built. Please run the build script.");
     }
 
     // CRITICAL: index.html must never be cached anywhere in the delivery chain.
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
     res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -141,7 +133,7 @@ app.use((req, res, next) => {
     // Permissions-Policy: restrict browser feature access
     res.setHeader(
       "Permissions-Policy",
-      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self)"
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self)",
     );
 
     res.send(html);
