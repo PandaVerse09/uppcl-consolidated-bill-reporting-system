@@ -559,13 +559,13 @@ When deploying to production, follow these security practices:
 ## Contributors
 
 **Utkarsh Aryan Mishra**  
-*Backend Engineer & Database Designer*  
+*Backend & DevOps Engineer*  
 - Database architecture & schema design.
 - Business logic, validation structures, and API creation.
 - Security wrappers and integration of export templates.
 
-**Ajruddin Ali**  
-*Frontend Developer & UI/UX Designer*  
+**Ajuruddin Ali**  
+*Frontend Developer & DevOps Engineer*  
 - React components, interfaces, and single-page routing.
 - Dashboard layouts, data visualization, and client-side styling.
 - Authentication integration and file download handlers.
