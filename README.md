@@ -1,6 +1,8 @@
-# UPPCL Consolidated Billing System (CBS)
+# UPPCL Daily Revenue Monitoring Portal (DRMP)
 
-A production-grade, full-stack Consolidated Billing System for daily division-wise payment reporting at Uttar Pradesh Power Corporation Limited (UPPCL). The application supports division-level data uploads, multi-stage approval workflows, audit trailing, PDF/Excel generation, and strict role-based access control.
+**Live Deployment:** [https://utkarsh-drmp.duckdns.org](https://utkarsh-drmp.duckdns.org)
+
+A production-grade, full-stack Daily Revenue Monitoring Portal for daily division-wise payment reporting at Uttar Pradesh Power Corporation Limited (UPPCL). The application supports division-level data uploads, multi-stage approval workflows, audit trailing, PDF/Excel generation, and strict role-based access control.
 
 The system is optimized for high-security environments, using a **Unified POST API Architecture** to comply with corporate network security gateways that restrict non-POST HTTP methods, and features **Kubernetes Integration** for resilient orchestration.
 
@@ -34,7 +36,7 @@ The system is optimized for high-security environments, using a **Unified POST A
 
 ## System Overview & Domain Model
 
-The Consolidated Billing System automates daily division-wise payment reporting across three primary payment sources:
+The Daily Revenue Monitoring Portal automates daily division-wise payment reporting across three primary payment sources:
 - **Bank ID**: Direct wire transfers and manual bank receipts.
 - **Payment Gateway**: Online transactions settled via public gateways.
 - **Billing System**: Internal billing platform payments.
@@ -163,7 +165,7 @@ flowchart LR
 ```mermaid
 flowchart TB
   Browser["User Web Browser"]
-  K8sPod["Kubernetes CBS Pod"]
+  K8sPod["Kubernetes DRMP Pod"]
   
   subgraph "Container Runtime"
     BE["Node.js Express App"]
@@ -438,7 +440,7 @@ Due to network security restrictions on intermediate corporate gateways, **all c
 
 ## Infrastructure & Production Deployment Guide
 
-The CBS application architecture is designed for modern orchestration in environments like Kubernetes, Docker, or serverless containers.
+The DRMP application architecture is designed for modern orchestration in environments like Kubernetes, Docker, or serverless containers.
 
 ### Kubernetes Health Checks (Probes)
 

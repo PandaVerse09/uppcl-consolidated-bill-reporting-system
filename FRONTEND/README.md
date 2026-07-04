@@ -1,6 +1,6 @@
-# Consolidated Billing System (CBS) — Frontend
+# Daily Revenue Monitoring Portal (DRMP) — Frontend
 
-Frontend-only React app for UPPCL's Consolidated Billing System. Built with React, Vite, React Router, Tailwind CSS, and Recharts. All data is mock JSON in `src/data/mockData.js` — there is no backend, API, database, or authentication logic.
+Frontend-only React app for UPPCL's Daily Revenue Monitoring Portal. Built with React, Vite, React Router, Tailwind CSS, and Recharts. All data is mock JSON in `src/data/mockData.js` — there is no backend, API, database, or authentication logic.
 
 ## Setup
 
