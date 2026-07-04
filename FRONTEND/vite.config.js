@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 const isLocal = process.env.VITE_RUN_ENV === 'local';
 
 export default defineConfig({
-  base: isLocal ? '/' : '/revenue/',
+  base: '/',
   plugins: [react()],
   server: {
     port: 5173,
