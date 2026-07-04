@@ -17,7 +17,7 @@ export default function ReportDetail() {
   if (error) return <p className="text-sm text-danger-600">{error}</p>
   if (!report) return <p className="text-sm text-gray-500">Loading report...</p>
   const row = report.divisions[0]
-  const download = (type) => api.download(`/reports/${date}/export/${type}?division=${encodeURIComponent(division)}`, `cbs-report-${date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
+  const download = (type) => api.download(`/reports/${date}/export/${type}?division=${encodeURIComponent(division)}`, `drmp-report-${date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
   const sections = [{ label: 'Bank ID Amount', value: row.bankAmount, icon: Landmark }, { label: 'Payment Gateway Amount', value: row.gatewayAmount, icon: CreditCard }, { label: 'Billing System Amount', value: row.billingAmount, icon: Receipt }]
   return <div className="space-y-6">
     <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm font-medium text-gray-600"><ArrowLeft size={15} /> Back</button>

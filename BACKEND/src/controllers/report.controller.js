@@ -126,12 +126,12 @@ const exportReportPdf = catchAsync(async (req, res) => {
   });
 
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename="cbs-report-${fileDate}.pdf"`);
+  res.setHeader("Content-Disposition", `attachment; filename="drmp-report-${fileDate}.pdf"`);
 
   const doc = new PDFDocument({ margin: 40, size: "A4" });
   doc.pipe(res);
 
-  doc.fontSize(16).text("UPPCL Consolidated Billing System", { align: "center" });
+  doc.fontSize(16).text("UPPCL Daily Revenue Monitoring Portal", { align: "center" });
   doc.moveDown(0.5);
   doc.fontSize(13).text(`Daily Consolidated Report - ${fileDate}`, { align: "center" });
   doc.moveDown();
@@ -251,7 +251,7 @@ const exportReportExcel = catchAsync(async (req, res) => {
     "Content-Type",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   );
-  res.setHeader("Content-Disposition", `attachment; filename="cbs-report-${fileDate}.xlsx"`);
+  res.setHeader("Content-Disposition", `attachment; filename="drmp-report-${fileDate}.xlsx"`);
 
   await workbook.xlsx.write(res);
   res.end();

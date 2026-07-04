@@ -17,11 +17,11 @@ export function Navbar() {
     <header className="flex h-16 items-center justify-between border-b border-surface-border bg-white px-6">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary-700 text-sm font-bold text-white">
-          CBS
+          DRMP
         </div>
         <div>
           <p className="text-sm font-semibold text-gray-900 leading-tight">
-            Consolidated Billing System
+            Daily Revenue Monitoring Portal
           </p>
           <p className="text-xs text-gray-500 leading-tight">
             Uttar Pradesh Power Corporation Limited

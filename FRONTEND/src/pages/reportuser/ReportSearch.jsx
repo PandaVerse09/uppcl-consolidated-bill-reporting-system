@@ -17,7 +17,7 @@ export default function ReportSearch() {
   const [applied, setApplied] = useState({})
   const { rows, error } = useReports(applied.date ? { from: applied.date, to: applied.date, division: applied.division } : { division: applied.division })
   const results = rows.filter((row) => !applied.source || ({ 'Bank ID': row.bankId, 'Payment Gateway': row.gateway, 'Billing System': row.billing })[applied.source] > 0)
-  const download = (row, type) => api.download(`/reports/${row.date}/export/${type}${row.division ? `?division=${encodeURIComponent(row.division)}` : ''}`, `cbs-report-${row.date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
+  const download = (row, type) => api.download(`/reports/${row.date}/export/${type}${row.division ? `?division=${encodeURIComponent(row.division)}` : ''}`, `drmp-report-${row.date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
   const columns = [
     { key: 'date', header: 'Date' }, { key: 'division', header: 'Division' },
     { key: 'bankId', header: 'Bank ID', render: (r) => formatINR(r.bankId) },

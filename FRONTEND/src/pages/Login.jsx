@@ -69,7 +69,7 @@ export default function Login() {
       <div className="w-full max-w-lg">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-md bg-primary-700 text-lg font-bold text-white">UP</div>
-          <h1 className="text-lg font-semibold text-gray-900">Consolidated Billing System</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Daily Revenue Monitoring Portal</h1>
           <p className="text-sm text-gray-500">Uttar Pradesh Power Corporation Limited</p>
         </div>
         <div className="rounded-lg border border-surface-border bg-white p-6 shadow-card">

@@ -10,7 +10,7 @@ import { api } from '../../services/api'
 export default function ApprovedReports() {
   const navigate = useNavigate()
   const { rows, error } = useReports()
-  const download = (row, type) => api.download(`/reports/${row.date}/export/${type}?division=${encodeURIComponent(row.division)}`, `cbs-report-${row.date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
+  const download = (row, type) => api.download(`/reports/${row.date}/export/${type}?division=${encodeURIComponent(row.division)}`, `drmp-report-${row.date}.${type === 'excel' ? 'xlsx' : 'pdf'}`)
   const columns = [
     { key: 'date', header: 'Date' }, { key: 'division', header: 'Division' },
     { key: 'total', header: 'Division Total', render: (r) => formatINR(r.total) },

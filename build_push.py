@@ -14,7 +14,7 @@ BACKEND_DIR = SCRIPT_DIR / "BACKEND"
 DIST_SRC = FRONTEND_DIR / "dist"
 DIST_DST = BACKEND_DIR / "dist"
 
-DEFAULT_IMAGE_BASE = "uppcl11/cbs-backend"
+DEFAULT_IMAGE_BASE = "uppcl11/drmp-backend"
 
 def run_command(command, cwd=None):
     """Utility to run shell commands cleanly."""
