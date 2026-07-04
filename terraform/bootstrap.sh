@@ -21,6 +21,10 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update -y
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
+# Add ubuntu user to docker group so they can run docker without sudo
+usermod -aG docker ubuntu
+
+
 # 3. Create application folder and configuration
 mkdir -p /home/ubuntu/uppcl-drmp
 cd /home/ubuntu/uppcl-drmp

@@ -64,7 +64,7 @@ app.use(
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
-        upgradeInsecureRequests: isLocal ? null : [],
+        upgradeInsecureRequests: null,
       },
     },
   }),
