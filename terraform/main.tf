@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-south-1" # Mumbai region
+  region = "ap-south-1" # Update to your desired region
 }
 
 # Create Security Group for HTTP, HTTPS, and SSH
@@ -48,7 +48,7 @@ resource "aws_security_group" "drmp_sg" {
   }
 }
 
-# Find latest Ubuntu 24.04 AMI in Mumbai
+# Find latest Ubuntu 24.04 AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
@@ -67,7 +67,7 @@ resource "aws_instance" "drmp_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.small"
   vpc_security_group_ids = [aws_security_group.drmp_sg.id]
-  key_name               = "DRMP-key"
+  key_name               = "DRMP-key" # Replace with your key name in AWS
 
   # Inject the bootstrap script
   user_data = file("${path.module}/bootstrap.sh")
