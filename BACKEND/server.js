@@ -55,6 +55,16 @@ function startHealthServer() {
   const healthApp = express();
   const healthPort = process.env.HEALTH_PORT || (process.env.RUN_ENV === "local" ? 5001 : 801);
 
+  // LIVENESS: deliberately dependency-free. Answering at all proves the event
+  // loop is turning, which is the only failure a container restart can fix.
+  // Dependency health belongs on /health below, which drives READINESS: a Redis
+  // or Mongo outage should take this pod out of the Service, not kill it.
+  // Restarting cannot bring back a dependency the pod does not own, and where a
+  // service exits(1) on a failed startup connect it is worse than useless: the
+  // restart dies before it can bind the health listener, so the pod enters
+  // CrashLoopBackOff and lags the dependency's recovery by up to five minutes.
+  healthApp.get("/livez", (req, res) => res.status(200).send("ok"));
+
   healthApp.get("/health", (req, res) => {
     const dbState = mongoose.connection.readyState;
     if (dbState === 1) {
