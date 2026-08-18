@@ -67,7 +67,7 @@ resource "aws_instance" "drmp_server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.small"
   vpc_security_group_ids = [aws_security_group.drmp_sg.id]
-  key_name               = "DRMP-key" # Replace with your key name in AWS
+  key_name               = "drmp-key-pair" # Matched to user created AWS SSH Key Pair
 
   # Inject the bootstrap script
   user_data = file("${path.module}/bootstrap.sh")
